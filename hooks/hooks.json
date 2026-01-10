@@ -1,0 +1,79 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "mkdir -p .claude/logs && echo \"$(date -Iseconds) | PRE_TOOL | Tool: {tool_name}\" >> .claude/logs/hooks.log"
+          }
+        ]
+      },
+      {
+        "matcher": "write|edit|search_replace",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "mkdir -p .claude/logs && echo \"$(date -Iseconds) | FILE_MODIFICATION | Tool: {tool_name} preparing to modify files\" >> .claude/logs/hooks.log"
+          }
+        ]
+      },
+      {
+        "matcher": "run_terminal_cmd",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "mkdir -p .claude/logs && echo \"$(date -Iseconds) | TERMINAL_CMD | About to execute terminal command\" >> .claude/logs/hooks.log"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "mkdir -p .claude/logs && echo \"$(date -Iseconds) | POST_TOOL | Tool: {tool_name} completed\" >> .claude/logs/hooks.log"
+          }
+        ]
+      },
+      {
+        "matcher": "write|edit|search_replace",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "mkdir -p .claude/logs && echo \"$(date -Iseconds) | FILE_MODIFIED | Tool: {tool_name} modified files\" >> .claude/logs/hooks.log"
+          }
+        ]
+      }
+    ],
+    "PreCommand": [
+      {
+        "matcher": "architect|implementer|tester|linter|critic",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "mkdir -p .claude/logs && echo \"$(date -Iseconds) | PRE_AGENT | Agent starting\" >> .claude/logs/hooks.log"
+          }
+        ]
+      }
+    ],
+    "PostCommand": [
+      {
+        "matcher": "architect|implementer|tester|linter|critic",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "mkdir -p .claude/logs && echo \"$(date -Iseconds) | POST_AGENT | Agent completed\" >> .claude/logs/hooks.log"
+          },
+          {
+            "type": "command",
+            "command": "python3 .claude/scripts/utils/memory_manager.py evict 3600 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}

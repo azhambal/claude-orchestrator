@@ -56,8 +56,18 @@ Task → Architect (plan) → Implementer (code) → Tester (verify) → Critic 
 When initialized in a project:
 ```
 project/.claude/
+├── .claude-plugin/        # Plugin metadata
+│   └── plugin.json        # Plugin configuration
 ├── CLAUDE.md              # Project-specific config (auto-generated)
-├── agents/                # Agent definitions with project context
+├── agents/                # Agent & subagent definitions
+│   ├── architect.md       # Main agents
+│   ├── implementer.md
+│   ├── tester.md
+│   ├── linter.md
+│   ├── critic.md
+│   ├── code-analyzer.md   # Subagents (specialized)
+│   ├── test-generator.md
+│   └── doc-writer.md
 ├── skills/                # Reusable skills (git-workflow, token-optimization)
 ├── memory/                # Persistent learnings
 │   ├── analysis.json      # Repository analysis
@@ -66,6 +76,9 @@ project/.claude/
 ├── postbox/               # Inter-agent communication
 │   ├── tasks.json         # Task queue
 │   └── results.json       # Agent outputs
+├── hooks/                 # Event hooks (Claude Code format)
+│   ├── hooks.json         # Hook definitions
+│   └── README.md          # Hook documentation
 ├── docs/                  # Detailed documentation
 │   ├── ARCHITECTURE.md
 │   └── WORKFLOWS.md
@@ -178,3 +191,20 @@ Main config: `config.yaml`
 - Thinking levels per task type
 - Worktree settings (max_parallel: 3)
 - Token optimization thresholds
+
+## Hooks
+
+Event-driven automation using official Claude Code hooks format:
+- `hooks/hooks.json` - Hook definitions (PreToolUse, PostToolUse, PreCommand, PostCommand)
+- Automatic logging of tool usage and agent lifecycle
+- Memory management and cleanup
+- See `hooks/README.md` for customization guide
+
+## Subagents
+
+Specialized AI assistants for focused tasks (Claude Code standard):
+- **code-analyzer** - Analyzes code structure and dependencies before changes
+- **test-generator** - Creates comprehensive test suites
+- **doc-writer** - Writes technical documentation
+- Claude automatically delegates based on task description
+- See `SUBAGENTS_REFACTORING.md` for details

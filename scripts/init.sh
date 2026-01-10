@@ -84,13 +84,7 @@ mkdir -p "$CLAUDE_DIR/cache/hot" \
          "$CLAUDE_DIR/cache/metadata"
 
 # Hooks structure
-mkdir -p "$CLAUDE_DIR/hooks/lifecycle" \
-         "$CLAUDE_DIR/hooks/context" \
-         "$CLAUDE_DIR/hooks/postbox"
-
-# Subagents
-mkdir -p "$CLAUDE_DIR/subagents/templates" \
-         "$CLAUDE_DIR/subagents/instances"
+mkdir -p "$CLAUDE_DIR/hooks"
 
 # Logs
 mkdir -p "$CLAUDE_DIR/logs"
@@ -111,62 +105,6 @@ cat > "$CLAUDE_DIR/cache/config.json" << 'CACHE_EOF'
 }
 CACHE_EOF
 
-# Initialize hooks config
-cat > "$CLAUDE_DIR/hooks/config.yaml" << 'HOOKS_EOF'
-version: "1.0"
-enabled: true
-
-lifecycle:
-  pre_agent:
-    enabled: true
-    script: "lifecycle/pre-agent.sh"
-  post_agent:
-    enabled: true
-    script: "lifecycle/post-agent.sh"
-  on_error:
-    enabled: true
-    script: "lifecycle/on-error.sh"
-
-context:
-  on_large_context:
-    enabled: true
-    threshold: 100000
-    script: "context/on-large-context.sh"
-HOOKS_EOF
-
-# Initialize subagents registry
-cat > "$CLAUDE_DIR/subagents/registry.json" << 'SUBAGENTS_EOF'
-{
-  "version": "1.0",
-  "subagents": {
-    "code-analyzer": {
-      "parent": "implementer",
-      "model": "sonnet",
-      "thinking": "think",
-      "description": "Analyzes code structure and dependencies",
-      "tools": ["Read", "Grep", "Glob"],
-      "enabled": true
-    },
-    "test-generator": {
-      "parent": "tester",
-      "model": "sonnet",
-      "thinking": "think",
-      "description": "Generates comprehensive test suites",
-      "tools": ["Read", "Write", "Edit"],
-      "enabled": true
-    },
-    "doc-writer": {
-      "parent": "architect",
-      "model": "haiku",
-      "thinking": "think",
-      "description": "Writes technical documentation",
-      "tools": ["Read", "Write", "Edit"],
-      "enabled": true
-    }
-  }
-}
-SUBAGENTS_EOF
-
 log_success "Context Engineering structure created"
 
 # ============================================
@@ -182,13 +120,10 @@ cp "$ORCHESTRATOR_DIR/skills/"*.md "$CLAUDE_DIR/skills/" 2>/dev/null || true
 mkdir -p "$CLAUDE_DIR/scripts/utils"
 cp "$ORCHESTRATOR_DIR/scripts/utils/"*.py "$CLAUDE_DIR/scripts/utils/" 2>/dev/null || true
 
-# Copy hook scripts
-cp "$ORCHESTRATOR_DIR/hooks/lifecycle/"*.sh "$CLAUDE_DIR/hooks/lifecycle/" 2>/dev/null || true
-cp "$ORCHESTRATOR_DIR/hooks/context/"*.sh "$CLAUDE_DIR/hooks/context/" 2>/dev/null || true
-cp "$ORCHESTRATOR_DIR/hooks/postbox/"*.sh "$CLAUDE_DIR/hooks/postbox/" 2>/dev/null || true
-
-# Copy subagent templates
-cp "$ORCHESTRATOR_DIR/subagents/templates/"*.md "$CLAUDE_DIR/subagents/templates/" 2>/dev/null || true
+# Copy plugin metadata and hooks configuration
+mkdir -p "$CLAUDE_DIR/.claude-plugin"
+cp "$ORCHESTRATOR_DIR/.claude-plugin/plugin.json" "$CLAUDE_DIR/.claude-plugin/" 2>/dev/null || true
+cp "$ORCHESTRATOR_DIR/hooks/hooks.json" "$CLAUDE_DIR/hooks/" 2>/dev/null || true
 
 log_success "Templates and utilities copied"
 

@@ -4,6 +4,9 @@
 
 Turn Claude Code into an autonomous development team with specialized agents that work in parallel.
 
+> 📚 **New to the project?** Check out [NAVIGATION.md](NAVIGATION.md) for quick access to all documentation.  
+> 🔄 **Upgrading?** See [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md) for what's changed.
+
 ## Features
 
 - 🤖 **5 Specialized Agents**: Architect, Tester, Linter, Implementer, Critic
@@ -75,13 +78,18 @@ This will:
 ```
 your-project/
 ├── .claude/
+│   ├── .claude-plugin/     # Plugin metadata
+│   │   └── plugin.json
 │   ├── CLAUDE.md           # Project config (auto-generated)
-│   ├── agents/             # Agent definitions
-│   │   ├── architect.md
+│   ├── agents/             # Agent & subagent definitions
+│   │   ├── architect.md    # Main agents
 │   │   ├── tester.md
 │   │   ├── linter.md
 │   │   ├── implementer.md
-│   │   └── critic.md
+│   │   ├── critic.md
+│   │   ├── code-analyzer.md   # Subagents
+│   │   ├── test-generator.md
+│   │   └── doc-writer.md
 │   ├── skills/             # Reusable skills
 │   ├── memory/             # Persistent learnings
 │   │   ├── analysis.json
@@ -90,6 +98,9 @@ your-project/
 │   ├── postbox/            # Inter-agent communication
 │   │   ├── tasks.json
 │   │   └── results.json
+│   ├── hooks/              # Event hooks (Claude Code format)
+│   │   ├── hooks.json      # Hook definitions
+│   │   └── README.md       # Hook documentation
 │   ├── docs/               # Detailed documentation
 │   │   ├── ARCHITECTURE.md
 │   │   └── WORKFLOWS.md
@@ -98,7 +109,9 @@ your-project/
 └── claude-orchestrate.sh   # Entry point
 ```
 
-## Agents
+## Agents & Subagents
+
+### Main Agents
 
 | Agent | Model | Role |
 |-------|-------|------|
@@ -107,6 +120,16 @@ your-project/
 | **Linter** | Sonnet | Code style, formatting, auto-fixes |
 | **Implementer** | Sonnet | Write code, fix bugs, refactor |
 | **Critic** | Sonnet | Review work, track patterns, improve prompts |
+
+### Subagents (Specialized)
+
+| Subagent | Model | Role |
+|----------|-------|------|
+| **code-analyzer** | Sonnet | Analyze code structure and dependencies |
+| **test-generator** | Sonnet | Generate comprehensive test suites |
+| **doc-writer** | Haiku | Create technical documentation |
+
+Subagents run in isolated contexts and are automatically delegated by Claude based on task description.
 
 ## Workflow
 
@@ -175,6 +198,30 @@ Instructions for the agent...
 ### Add Project-Specific Rules
 
 Edit `.claude/CLAUDE.md` to add project-specific instructions.
+
+### Customize Hooks
+
+Edit `.claude/hooks/hooks.json` to add event-driven automation:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "write|edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npm run lint"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+See `.claude/hooks/README.md` for details.
 
 ### Customize Postbox
 
