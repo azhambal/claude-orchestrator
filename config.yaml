@@ -1,0 +1,53 @@
+# Claude Orchestrator Configuration
+# ===================================
+
+version: "1.0"
+
+# Model allocation (cost-optimized)
+models:
+  analyzer: opus          # Deep analysis, architecture decisions
+  architect: opus         # Documentation updates, planning
+  workers: sonnet         # Routine tasks (tests, lint, implementation)
+  critic: sonnet          # Review and evaluation
+
+# Thinking levels per task type
+thinking:
+  analyze: ultrathink     # Full repo analysis
+  architect: "think hard" # Architecture decisions
+  workers: think          # Standard tasks
+  critic: "think hard"    # Evaluation
+
+# Paths (relative to target repo)
+paths:
+  claude_dir: .claude
+  agents_dir: .claude/agents
+  skills_dir: .claude/skills
+  memory_dir: .claude/memory
+  postbox_dir: .claude/postbox
+  worktrees_base: ../.worktrees
+
+# Worktree configuration
+worktrees:
+  max_parallel: 3
+  naming: "{repo}-{agent}-{timestamp}"
+  auto_cleanup: true
+
+# Agent defaults
+agents:
+  timeout: 300            # 5 minutes per task
+  max_retries: 2
+  auto_commit: true
+  branch_prefix: "claude/"
+
+# Token optimization
+optimization:
+  compact_threshold: 50000    # /compact when context exceeds this
+  clear_between_tasks: true   # /clear between major tasks
+  lazy_load_docs: true        # Load docs/* on demand
+  max_claude_md_tokens: 2000  # Keep CLAUDE.md lean
+
+# Postbox settings (inter-agent communication)
+postbox:
+  tasks_file: tasks.json
+  results_file: results.json
+  lock_timeout: 30
