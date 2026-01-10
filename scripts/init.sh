@@ -45,7 +45,6 @@ log_info "Creating directory structure..."
 
 # Create directories explicitly to ensure brace expansion works correctly
 mkdir -p "$CLAUDE_DIR/agents" \
-         "$CLAUDE_DIR/skills" \
          "$CLAUDE_DIR/memory" \
          "$CLAUDE_DIR/postbox" \
          "$CLAUDE_DIR/docs"
@@ -112,9 +111,8 @@ log_success "Context Engineering structure created"
 # ============================================
 log_info "Copying agent templates and utilities..."
 
-# Copy agents and skills
+# Copy agents
 cp "$ORCHESTRATOR_DIR/agents/"*.md "$CLAUDE_DIR/agents/" 2>/dev/null || true
-cp "$ORCHESTRATOR_DIR/skills/"*.md "$CLAUDE_DIR/skills/" 2>/dev/null || true
 
 # Copy utility scripts
 mkdir -p "$CLAUDE_DIR/scripts/utils"
