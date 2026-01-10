@@ -4,9 +4,6 @@
 
 Turn Claude Code into an autonomous development team with specialized agents that work in parallel.
 
-> 📚 **New to the project?** Check out [NAVIGATION.md](NAVIGATION.md) for quick access to all documentation.  
-> 🔄 **Upgrading?** See [REFACTORING_SUMMARY.md](REFACTORING_SUMMARY.md) for what's changed.
-
 ## Features
 
 - 🤖 **5 Specialized Agents**: Architect, Tester, Linter, Implementer, Critic
@@ -90,7 +87,7 @@ your-project/
 │   │   ├── code-analyzer.md   # Subagents
 │   │   ├── test-generator.md
 │   │   └── doc-writer.md
-│   ├── skills/             # Reusable skills
+│   ├── skills/             # Best practices (git-workflow, token-optimization)
 │   ├── memory/             # Persistent learnings
 │   │   ├── analysis.json
 │   │   ├── decisions.md

@@ -68,7 +68,7 @@ project/.claude/
 │   ├── code-analyzer.md   # Subagents (specialized)
 │   ├── test-generator.md
 │   └── doc-writer.md
-├── skills/                # Reusable skills (git-workflow, token-optimization)
+├── skills/                # Best practices guides
 ├── memory/                # Persistent learnings
 │   ├── analysis.json      # Repository analysis
 │   ├── decisions.md       # Architecture Decision Records
@@ -90,7 +90,7 @@ project/.claude/
 
 ### init.sh - Initialize Repository
 1. Creates `.claude/` directory structure
-2. Copies agent templates and skills
+2. Copies agent templates and configuration
 3. Runs deep analysis with Opus + ultrathink
 4. Generates customized CLAUDE.md and ARCHITECTURE.md
 5. Creates `claude-orchestrate.sh` entry point
@@ -207,4 +207,3 @@ Specialized AI assistants for focused tasks (Claude Code standard):
 - **test-generator** - Creates comprehensive test suites
 - **doc-writer** - Writes technical documentation
 - Claude automatically delegates based on task description
-- See `SUBAGENTS_REFACTORING.md` for details
