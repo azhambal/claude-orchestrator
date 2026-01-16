@@ -8,6 +8,7 @@ Turn Claude Code into an autonomous development team with specialized agents tha
 
 - 🤖 **5 Specialized Agents**: Architect, Tester, Linter, Implementer, Critic
 - 🔄 **Full Autopilot**: Agents work autonomously until tasks complete
+- 🏁 **Tournament Mode**: Run multiple pipelines in parallel and select the best
 - 🌳 **Parallel Execution**: Run multiple agents in git worktrees
 - 📬 **Postbox System**: File-based inter-agent communication
 - 🧠 **Learning System**: Critic tracks patterns and improves prompts
@@ -41,33 +42,34 @@ This will:
 ### 3. Run Tasks
 
 ```bash
-# Single task with full agent pipeline
-./claude-orchestrate.sh run "Add user authentication with JWT"
+# Single ACIP pipeline (default n=1)
+./claude-orchestrate.sh pipeline "Fix login bug"
 
-# Add task to queue
-./claude-orchestrate.sh task "Fix login bug"
+# Tournament mode (n=2..4)
+./claude-orchestrate.sh pipeline 4 "Add user authentication with JWT"
 
-# Run improvement cycle (lint, test, review)
-./claude-orchestrate.sh cycle
+# Select winner after tournament completes (example)
+./claude-orchestrate.sh pipeline-select pipeline-1
 
-# Full autopilot mode
-./claude-orchestrate.sh auto
+# Spawn N parallel agents for ONE task (worktrees)
+./claude-orchestrate.sh task 4 "Refactor module X"
 ```
 
 ### 4. Parallel Agents (Optional)
 
 ```bash
-# Spawn 3 agents in separate worktrees
-./claude-orchestrate.sh parallel 3
+# Live monitor
+./claude-orchestrate.sh watch
 
-# Check status
-./.claude/scripts/worktree.sh status
+# List tmux sessions
+tmux ls
 
-# Attach to specific agent
-./.claude/scripts/worktree.sh attach tester
+# Attach to a session (session names include timestamps)
+./.claude/scripts/worktree.sh attach <agent-instance>   # attaches latest
+# or: tmux attach -t claude-agent-implementer-1-1700000000
 
-# Cleanup when done
-./.claude/scripts/worktree.sh cleanup
+# Cleanup (includes tournament sessions/worktrees)
+./claude-orchestrate.sh clean
 ```
 
 ## Architecture
@@ -95,6 +97,12 @@ your-project/
 │   ├── postbox/            # Inter-agent communication
 │   │   ├── tasks.json
 │   │   └── results.json
+│   ├── pipeline/           # ACIP pipeline runtime artifacts (ignored by default)
+│   │   ├── current/
+│   │   └── history/
+│   ├── tournament/         # Tournament runtime artifacts (ignored by default)
+│   │   ├── current/
+│   │   └── history/
 │   ├── hooks/              # Event hooks (Claude Code format)
 │   │   ├── hooks.json      # Hook definitions
 │   │   └── README.md       # Hook documentation
@@ -102,7 +110,10 @@ your-project/
 │   │   ├── ARCHITECTURE.md
 │   │   └── WORKFLOWS.md
 │   └── scripts/
-│       └── worktree.sh
+│       ├── worktree.sh
+│       ├── pipeline.sh
+│       ├── tournament.sh
+│       └── pipeline-monitor.sh
 └── claude-orchestrate.sh   # Entry point
 ```
 
@@ -157,17 +168,24 @@ The system is built with token efficiency in mind:
 ## Commands Reference
 
 ```bash
-# Orchestration
-./claude-orchestrate.sh run "description"    # Full agent pipeline
-./claude-orchestrate.sh task "description"   # Add to queue
-./claude-orchestrate.sh auto                 # Autopilot mode
-./claude-orchestrate.sh cycle                # Improvement cycle
-./claude-orchestrate.sh status               # Show status
+# Pipeline (single by default)
+./claude-orchestrate.sh pipeline "description"        # n=1 (default)
+
+# Tournament mode (n=2..4)
+./claude-orchestrate.sh pipeline 4 "description"
+./claude-orchestrate.sh pipeline-tournament-status
+./claude-orchestrate.sh pipeline-select pipeline-1
+./claude-orchestrate.sh pipeline-reject
+
+# Single pipeline utilities
+./claude-orchestrate.sh pipeline-status
+./claude-orchestrate.sh pipeline-resume
+./claude-orchestrate.sh pipeline-monitor 2
 
 # Worktrees (parallel)
 ./.claude/scripts/worktree.sh spawn 3        # Create 3 worktrees
 ./.claude/scripts/worktree.sh list           # List worktrees
-./.claude/scripts/worktree.sh attach tester  # Attach to agent
+./.claude/scripts/worktree.sh attach <agent> # Attach to latest session for agent
 ./.claude/scripts/worktree.sh status         # Agent status
 ./.claude/scripts/worktree.sh merge tester   # Merge agent's work
 ./.claude/scripts/worktree.sh cleanup        # Remove all

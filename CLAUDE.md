@@ -14,16 +14,17 @@ Claude Orchestrator is a multi-agent autopilot system for Claude Code that enabl
 chmod +x ~/claude-orchestrator/scripts/*.sh             # Make scripts executable
 
 # Orchestration (from initialized project)
-./claude-orchestrate.sh run "task description"          # Run full agent pipeline
-./claude-orchestrate.sh task "description"              # Add task to queue
-./claude-orchestrate.sh cycle                           # Run improvement cycle (lint, test, review)
-./claude-orchestrate.sh auto                            # Full autopilot mode
+./claude-orchestrate.sh pipeline "task description"     # n=1 (default) single pipeline
+./claude-orchestrate.sh pipeline 4 "task description"   # tournament mode (n=2..4)
+./claude-orchestrate.sh pipeline-select pipeline-1      # Select winner after tournament
+./claude-orchestrate.sh task 4 "description"            # Spawn N parallel agents for ONE task
 ./claude-orchestrate.sh status                          # Show current state
+./claude-orchestrate.sh clean                           # Clean up worktrees + tournament sessions
 
 # Worktrees (parallel execution)
 ./.claude/scripts/worktree.sh spawn 3                   # Create 3 parallel worktrees
 ./.claude/scripts/worktree.sh list                      # List active worktrees
-./.claude/scripts/worktree.sh attach tester             # Attach to specific agent
+./.claude/scripts/worktree.sh attach tester             # Attach to latest tester session
 ./.claude/scripts/worktree.sh status                    # Show agent status
 ./.claude/scripts/worktree.sh merge tester              # Merge agent's work
 ./.claude/scripts/worktree.sh cleanup                   # Remove all worktrees
@@ -64,7 +65,12 @@ project/.claude/
 │   ├── implementer.md
 │   ├── tester.md
 │   ├── linter.md
+│   ├── reviewer.md
 │   ├── critic.md
+│   ├── spec-generator.md
+│   ├── comprehensive-tester.md
+│   ├── judge.md
+│   ├── validator.md
 │   ├── code-analyzer.md   # Subagents (specialized)
 │   ├── test-generator.md
 │   └── doc-writer.md
@@ -76,6 +82,12 @@ project/.claude/
 ├── postbox/               # Inter-agent communication
 │   ├── tasks.json         # Task queue
 │   └── results.json       # Agent outputs
+├── pipeline/              # ACIP pipeline runtime artifacts (ignored by default)
+│   ├── current/
+│   └── history/
+├── tournament/            # Tournament runtime artifacts (ignored by default)
+│   ├── current/
+│   └── history/
 ├── hooks/                 # Event hooks (Claude Code format)
 │   ├── hooks.json         # Hook definitions
 │   └── README.md          # Hook documentation
@@ -83,7 +95,10 @@ project/.claude/
 │   ├── ARCHITECTURE.md
 │   └── WORKFLOWS.md
 └── scripts/
-    └── worktree.sh        # Parallel execution manager
+    ├── worktree.sh        # Parallel worktree manager
+    ├── pipeline.sh        # Pipeline (n=1) + Tournament (n=2..4)
+    ├── tournament.sh      # Deprecated wrapper (kept for compatibility)
+    └── pipeline-monitor.sh
 ```
 
 ## Core Workflows
@@ -95,16 +110,32 @@ project/.claude/
 4. Generates customized CLAUDE.md and ARCHITECTURE.md
 5. Creates `claude-orchestrate.sh` entry point
 
-### orchestrate.sh - Task Execution
-- **run**: Architect plans → Implementer codes → Tester verifies → Critic reviews
-- **auto**: Continuous autopilot processing postbox queue
-- **cycle**: Linter + Tester + Critic improvement cycle
+### pipeline.sh - Pipeline (Single + Tournament)
+- `pipeline.sh run [n] "desc"` where **n=1** (default) runs a single ACIP pipeline, **n=2..4** runs tournament mode
+- Single pipeline phases:
+  - Phase 1: Architecture (Architect ↔ Critic loop)
+  - Phase 2: Test generation & validation
+  - Phase 3: Implementation (Implementer ↔ tests loop)
+  - Phase 4: Documentation
+- Tournament mode adds:
+  - Spec tests → parallel pipelines → comprehensive tests → validation → judge → human selection
+
+### tournament.sh - Deprecated Wrapper
+- Kept for backward compatibility; delegates to `pipeline.sh`
+- Phase 1: Architecture (Architect ↔ Critic loop)
+- Phase 2: Test generation & validation
+- Phase 3: Implementation (Implementer ↔ tests loop)
+- Phase 4: Documentation
 
 ### worktree.sh - Parallel Agents
 - Creates git worktrees for isolated parallel work
 - Spawns agents in tmux sessions with branch per agent
 - Manages task assignment from postbox
 - Handles merging and cleanup
+
+### orchestrate.sh - Autopilot (Optional/Legacy)
+- A separate autopilot loop (architect→implementer→tester→critic) lives in `.claude/scripts/orchestrate.sh`
+- Not exposed as top-level `claude-orchestrate.sh` commands by default to avoid name conflicts
 
 ## Agent Guidelines
 
