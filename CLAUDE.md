@@ -97,7 +97,6 @@ project/.claude/
 └── scripts/
     ├── worktree.sh        # Parallel worktree manager
     ├── pipeline.sh        # Pipeline (n=1) + Tournament (n=2..4)
-    ├── tournament.sh      # Deprecated wrapper (kept for compatibility)
     └── pipeline-monitor.sh
 ```
 
@@ -120,8 +119,6 @@ project/.claude/
 - Tournament mode adds:
   - Spec tests → parallel pipelines → comprehensive tests → validation → judge → human selection
 
-### tournament.sh - Deprecated Wrapper
-- Kept for backward compatibility; delegates to `pipeline.sh`
 - Phase 1: Architecture (Architect ↔ Critic loop)
 - Phase 2: Test generation & validation
 - Phase 3: Implementation (Implementer ↔ tests loop)

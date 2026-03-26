@@ -158,7 +158,7 @@ fi
 
 # Copy orchestrator scripts into target repo (.claude/scripts/)
 mkdir -p "$CLAUDE_DIR/scripts"
-for f in worktree.sh pipeline.sh tournament.sh pipeline-monitor.sh orchestrate.sh; do
+for f in worktree.sh pipeline.sh pipeline-monitor.sh orchestrate.sh; do
     if [ -f "$ORCHESTRATOR_DIR/scripts/$f" ]; then
         cp "$ORCHESTRATOR_DIR/scripts/$f" "$CLAUDE_DIR/scripts/" 2>/dev/null || true
     fi
@@ -356,14 +356,6 @@ cat > "$TARGET_REPO/claude-orchestrate.sh" << 'ENTRY_EOF'
 #   pipeline-reject               Reject and cleanup tournament
 #   pipeline-cleanup              Cleanup tournament worktrees/sessions
 #
-#  LEGACY ALIASES
-#   tournament [n] "<desc>"       Deprecated alias for: pipeline [n]
-#   tournament-status             Alias for: pipeline-tournament-status
-#   tournament-select <pipeline>  Alias for: pipeline-select
-#   tournament-reject             Alias for: pipeline-reject
-#   tournament-cleanup            Alias for: pipeline-cleanup
-#   pipeline-single "<desc>"      Deprecated alias for: pipeline 1
-#
 #  TASK WORKTREES (Legacy)
 #   task [n_agents] "<desc>"      Create a task and spawn N parallel agents (default: 4)
 #
@@ -379,54 +371,6 @@ CLAUDE_DIR=".claude"
 POSTBOX="$CLAUDE_DIR/postbox"
 
 case "$1" in
-    # ═══════════════════════════════════════════════════════════════
-    # LEGACY ALIASES
-    # ═══════════════════════════════════════════════════════════════
-    tournament)
-        # Deprecated alias for tournament run.
-        # Use: ./claude-orchestrate.sh pipeline [n] "desc"
-        shift
-        if [[ "$1" =~ ^[0-9]+$ ]]; then
-            N_PIPELINES="$1"
-            shift
-        else
-            N_PIPELINES=4
-        fi
-        TASK_DESC="$*"
-        if [ -z "$TASK_DESC" ]; then
-            echo "Error: Task description is required"
-            echo "Usage: $0 pipeline [n] \"description\""
-            exit 1
-        fi
-        if [ "$N_PIPELINES" -lt 2 ] || [ "$N_PIPELINES" -gt 4 ]; then
-            echo "Error: n must be between 2 and 4 for tournament mode"
-            exit 1
-        fi
-        echo "Deprecated: use '$0 pipeline $N_PIPELINES \"...\"'"
-        bash "$SCRIPT_DIR/.claude/scripts/pipeline.sh" run "$N_PIPELINES" "$TASK_DESC"
-        ;;
-
-    tournament-status)
-        bash "$SCRIPT_DIR/.claude/scripts/pipeline.sh" tournament-status
-        ;;
-
-    tournament-select)
-        if [ -z "$2" ]; then
-            echo "Error: Pipeline name is required"
-            echo "Usage: $0 tournament-select <pipeline>"
-            exit 1
-        fi
-        bash "$SCRIPT_DIR/.claude/scripts/pipeline.sh" tournament-select "$2"
-        ;;
-
-    tournament-reject)
-        bash "$SCRIPT_DIR/.claude/scripts/pipeline.sh" tournament-reject
-        ;;
-
-    tournament-cleanup)
-        bash "$SCRIPT_DIR/.claude/scripts/pipeline.sh" tournament-cleanup
-        ;;
-
     # ═══════════════════════════════════════════════════════════════
     # PIPELINE (single + tournament)
     # ═══════════════════════════════════════════════════════════════
@@ -450,18 +394,6 @@ case "$1" in
             exit 1
         fi
         bash "$SCRIPT_DIR/.claude/scripts/pipeline.sh" run "$N_PIPELINES" "$TASK_DESC"
-        ;;
-
-    pipeline-single)
-        echo "Deprecated: use '$0 pipeline 1 \"...\"' (or omit n to default to 1)"
-        shift
-        TASK_DESC="$*"
-        if [ -z "$TASK_DESC" ]; then
-            echo "Error: Task description is required"
-            echo "Usage: $0 pipeline-single \"description\""
-            exit 1
-        fi
-        bash "$SCRIPT_DIR/.claude/scripts/pipeline.sh" run "1" "$TASK_DESC"
         ;;
 
     pipeline-status)

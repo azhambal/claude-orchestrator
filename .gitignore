@@ -1,0 +1,5 @@
+# Sensitive / local-only — do not commit
+CONTEXT_ENGINEERING_PROPOSAL.md
+IMPLEMENTATION_PLAN.md
+.claude-plugin/
+.claude/

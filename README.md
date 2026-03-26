@@ -112,7 +112,6 @@ your-project/
 │   └── scripts/
 │       ├── worktree.sh
 │       ├── pipeline.sh
-│       ├── tournament.sh
 │       └── pipeline-monitor.sh
 └── claude-orchestrate.sh   # Entry point
 ```
